@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+import argparse
+import os
+import re
+import sh
+import shlex
+import sys
+import tempfile
+
+VAR_RE = re.compile(r'\${(?P<varname>.*)}')
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--compose-file', default='docker-compose.yml')
+parser.add_argument('stack_name')
+
+args = parser.parse_args()
+
+with open(args.compose_file) as fh:
+    content = fh.read()
+
+    previous_idx = 0
+    rendered = ''
+    for x in VAR_RE.finditer(content):
+        rendered += content[previous_idx:x.start('varname')-2]  # -2 to get rid of variable's `${`
+        rendered += os.environ[x.group('varname')]
+
+        previous_idx = x.end('varname') + 1  # +1 to get rid of variable's `}`
+
+fh = tempfile.NamedTemporaryFile()
+fh.write(rendered.encode('utf8'))
+
+command = f"""docker stack deploy
+  --prune
+  --with-registry-auth
+  --compose-file {fh.name}
+  {args.stack_name}"""
+command_split = shlex.split(command)
+
+executable = getattr(sh, command_split[0])
+executable(*command_split[1:])
+
+print(command)
