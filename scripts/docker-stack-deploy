@@ -47,6 +47,6 @@ command = f"""docker stack deploy
 command_split = shlex.split(command)
 
 executable = getattr(sh, command_split[0])
-executable(*command_split[1:])
+executable(*command_split[1:], _env=os.environ)
 
 print(command)
