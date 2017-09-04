@@ -13,6 +13,7 @@ VAR_RE = re.compile(r'\${(?P<varname>.*)}')
 parser = argparse.ArgumentParser()
 parser.add_argument('--compose-file', default='docker-compose.yml')
 parser.add_argument('stack_name')
+parser.add_argument('--cat', action='store_true', help='print the rendered compose file')
 
 args = parser.parse_args()
 
@@ -29,6 +30,9 @@ with open(args.compose_file) as fh:
 
 fh = tempfile.NamedTemporaryFile()
 fh.write(rendered.encode('utf8'))
+
+if args.cat:
+    print(rendered)
 
 command = f"""docker stack deploy
   --prune
