@@ -53,6 +53,7 @@ with open(args.compose_file) as fh:
 
 fh = tempfile.NamedTemporaryFile()
 fh.write(rendered.encode('utf8'))
+fh.flush()
 
 if args.cat:
     print(rendered)
