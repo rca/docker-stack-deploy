@@ -20,6 +20,19 @@ stack_name = args.name
 if not stack_name:
     stack_name = os.path.basename(os.getcwd())
 
+# load up the environment
+env_file = os.path.join(os.path.expanduser('~'), '.docker', 'environments', stack_name)
+stack_env = {}
+if os.path.exists(env_file):
+    with open(env_file) as fh:
+        for line in fh.read().splitlines():
+            key, value = line.split('=')
+            stack_env[key] = value
+else:
+    print(f'WARNING: env_file={env_file} file not found', file=sys.stderr)
+
+os.environ.update(stack_env)
+
 with open(args.compose_file) as fh:
     content = fh.read()
 
