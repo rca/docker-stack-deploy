@@ -40,7 +40,12 @@ with open(args.compose_file) as fh:
     rendered = ''
     for x in VAR_RE.finditer(content):
         rendered += content[previous_idx:x.start('varname')-2]  # -2 to get rid of variable's `${`
-        rendered += os.environ[x.group('varname')]
+
+        varname = x.group('varname')
+        try:
+            rendered += os.environ[varname]
+        except KeyError:
+            sys.exit(f'varname={varname} not in environment')
 
         previous_idx = x.end('varname') + 1  # +1 to get rid of variable's `}`
 
