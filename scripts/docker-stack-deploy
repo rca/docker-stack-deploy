@@ -28,6 +28,8 @@ with open(args.compose_file) as fh:
 
         previous_idx = x.end('varname') + 1  # +1 to get rid of variable's `}`
 
+    rendered += content[previous_idx:]
+
 fh = tempfile.NamedTemporaryFile()
 fh.write(rendered.encode('utf8'))
 
